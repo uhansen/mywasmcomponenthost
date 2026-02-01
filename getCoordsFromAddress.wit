@@ -1,0 +1,66 @@
+package root:component;
+
+world root {
+  import wasi:io/error@0.2.6;
+  import wasi:io/streams@0.2.6;
+  import wasi:cli/environment@0.2.6;
+  import wasi:cli/exit@0.2.6;
+  import wasi:cli/stderr@0.2.6;
+
+  export docs:getcoordsfromaddressworld/getcoordsfromaddress@0.1.0;
+}
+package wasi:io@0.2.6 {
+  interface error {
+    resource error {
+      to-debug-string: func() -> string;
+    }
+  }
+  interface streams {
+    use error.{error};
+
+    resource output-stream {
+      blocking-write-and-flush: func(contents: list<u8>) -> result<_, stream-error>;
+    }
+
+    variant stream-error {
+      last-operation-failed(error),
+      closed,
+    }
+  }
+}
+
+
+package wasi:cli@0.2.6 {
+  interface environment {
+    get-environment: func() -> list<tuple<string, string>>;
+  }
+  interface exit {
+    exit: func(status: result);
+  }
+  interface stderr {
+    use wasi:io/streams@0.2.6.{output-stream};
+
+    get-stderr: func() -> output-stream;
+  }
+}
+
+
+package docs:getcoordsfromaddressworld@0.1.0 {
+  interface getcoordsfromaddress {
+    record address {
+      street: string,
+      streetnumber: string,
+      zip: string,
+      town: string,
+      region: option<string>,
+      count: option<u32>,
+    }
+
+    record coordinates {
+      longitude: f64,
+      latitude: f64,
+    }
+
+    getcoordsfromaddress: func(address: address) -> coordinates;
+  }
+}
