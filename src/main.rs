@@ -25,6 +25,7 @@ fn main() -> Result<()> {
     config.wasm_component_model(true);
     let engine = Engine::new(&config).context("Failed to create Wasmtime engine")?;
 
+    
     // Load the WASM component
     let wasm_path = "/home/uffe/source/projects/myhomemonitor/getCoordsFromAddress/target/wasm32-wasip2/release/getCoordsFromAddress.wasm";
     println!("Loading WASM component from: {}", wasm_path);
@@ -36,9 +37,14 @@ fn main() -> Result<()> {
     wasmtime_wasi::add_to_linker_sync(&mut linker)
         .context("Failed to add WASI to linker")?;
 
+    // Get the geocoding API key from environment
+    let geocoding_api_key = std::env::var("GEOCODING_API_KEY")
+        .unwrap_or_else(|_| "".to_string());
+
     // Create WASI context with environment access
+    // Expose the API key to the component via wasi:environment interface
     let wasi_ctx = WasiCtxBuilder::new()
-        .inherit_env()
+        .env("GEOCODING_API_KEY", &geocoding_api_key)
         .inherit_stderr()
         .inherit_stdout()
         .build();
