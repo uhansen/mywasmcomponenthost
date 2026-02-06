@@ -108,8 +108,8 @@ fn main() -> Result<()> {
 
     // Extract coordinates from the result
     if let Val::Record(fields) = &results[0] {
-        let mut latitude = 0.0;
-        let mut longitude = 0.0;
+        let mut latitude = 42.0;
+        let mut longitude = 42.0;
         
         for (name, val) in fields {
             match (name.as_str(), val) {
