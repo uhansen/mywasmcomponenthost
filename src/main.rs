@@ -20,6 +20,9 @@ impl WasiView for HostState {
 }
 
 fn main() -> Result<()> {
+    // Load environment variables from .env file
+    dotenvy::dotenv().context("Failed to load .env file")?;
+
     // Create an engine with the component model enabled
     let mut config = Config::new();
     config.wasm_component_model(true);
@@ -37,9 +40,9 @@ fn main() -> Result<()> {
     wasmtime_wasi::add_to_linker_sync(&mut linker)
         .context("Failed to add WASI to linker")?;
 
-    // Get the geocoding API key from environment
+    // Get the geocoding API key from .env
     let geocoding_api_key = std::env::var("GEOCODING_API_KEY")
-        .unwrap_or_else(|_| "".to_string());
+        .context("GEOCODING_API_KEY not set in .env file")?;
 
     // Create WASI context with environment access
     // Expose the API key to the component via wasi:environment interface
